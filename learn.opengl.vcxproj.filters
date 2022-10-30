@@ -21,5 +21,17 @@
     <ClCompile Include="dependencies\glad\src\glad.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\render\shader\shader.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\render\shader\shader.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="assets\shader\vs.vertex.hlsl" />
+    <FxCompile Include="assets\shader\fs.fragment.hlsl" />
   </ItemGroup>
 </Project>
