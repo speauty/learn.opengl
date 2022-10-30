@@ -3,12 +3,16 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "stb_image.h"
+
 #include <render/shader/shader.h>
+#include <render/texture/texture.h>
 
 void keyCallbackFn(GLFWwindow* window, int key, int scancode, int action, int mode);
 void framebufferSizeCallbackFn(GLFWwindow* window, int width, int height);
 
 const std::string PATH_SHADER = "E:\\MonkeyCode\\github.com\\speauty\\learn.opengl\\assets\\shader\\";
+const std::string PATH_TEXTURE = "E:\\MonkeyCode\\github.com\\speauty\\learn.opengl\\assets\\texture\\";
 
 int main() {
 
@@ -42,6 +46,9 @@ int main() {
 	glVersion = (unsigned char*)glGetString(GL_VERSION);
 	// 状态: 当前载入GL 3.3.0 NVIDIA 512.72
 	std::cout << "状态: 当前载入GL " << glVersion << std::endl;
+	int nrAttributes;
+	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
+	std::cout << "状态: 当前顶点支持属性最大数量: " << nrAttributes << std::endl;
 
 	// 注册按键回调
 	glfwSetKeyCallback(window, keyCallbackFn);
@@ -50,13 +57,15 @@ int main() {
 
 	// 顶点(位置坐标 颜色 纹理坐标)
 	float vertices[] = {
-		0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, // 顶点
-		0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,// 右顶点
-		-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,// 左顶点
+		0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 2.0f, 2.0f,
+		0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 2.0f, 0.0f,
+		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+		-0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,2.0f,
 	};
 
 	unsigned int indices[] = { // 索引
-		0, 1, 2, // 第一个三角形
+		0, 1, 3,
+		1, 2, 3,
 	};
 
 	unsigned int vbo, vao, ebo; // 顶点缓冲对象 顶点数组缓冲对象(GPU解释顶点数据) 元素缓冲对象
@@ -76,11 +85,14 @@ int main() {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	// 设置顶点属性指针-坐标-位置0
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	// 设置顶点属性指针-颜色-位置1
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(sizeof(float) * 3));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float) * 3));
 	glEnableVertexAttribArray(1);
+	// 设置顶点属性指针-纹理-位置2
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float) * 6));
+	glEnableVertexAttribArray(2);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -90,6 +102,13 @@ int main() {
 	// @todo 这里这个待修复
 	testShader.loadFromFile((PATH_SHADER + "vs.vertex.hlsl").c_str(), (PATH_SHADER + "fs.fragment.hlsl").c_str());
 
+	Texture texture1(0, (PATH_TEXTURE + "container.jpg").c_str());
+	Texture texture2(1, (PATH_TEXTURE + "awesomeface.png").c_str());
+
+	testShader.exec();
+	testShader.uniformSetInt("texture1", texture1.getTexId());
+	testShader.uniformSetInt("texture2", texture2.getTexId());
+
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // 设置清除屏幕缓冲区使用的颜色
 		// 清除屏幕缓冲区, 接收一个参数指定要清空的缓冲区, 可选值:
@@ -98,19 +117,26 @@ int main() {
 		// GL_STENCIL_BUFFER_BIT - 模板缓冲区
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		texture1.bind();
+		texture2.bind();
+
 		testShader.exec();
 
 		glBindVertexArray(vao);
-		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-		glfwPollEvents(); // 轮询事件
 		// 交换颜色缓冲区(储存着GLFW窗口每一个像素颜色值的大缓冲), 它在这一迭代中被用来绘制, 并且将会作为输出显示在屏幕上
 		// 双缓冲
 		// 绘制: 左=>右 上=>下 逐像素绘制
 		// 前缓冲保存最终输出的图像, 直接在屏幕上显示
 		// 所有渲染指令在后缓冲绘制, 当所有渲染指令完成后, 直接交换前缓冲和后缓冲
 		glfwSwapBuffers(window);
+		glfwPollEvents(); // 轮询事件
 	}
+
+	glDeleteVertexArrays(1, &vao);
+	glDeleteBuffers(1, &vbo);
+	glDeleteBuffers(1, &ebo);
 
 	glfwTerminate();
 	return 0;

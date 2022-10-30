@@ -1,11 +1,5 @@
 #include "Shader.h"
 
-#include <glad/glad.h>
-
-#include <fstream>
-#include <sstream>
-#include <iostream>
-
 Shader::Shader() {
 	this->m_Id = glCreateProgram(); // 创建着色器程序
 }
