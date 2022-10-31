@@ -24,6 +24,7 @@ public:
 	void uniformSetInt(const std::string &name, int val) const;
 	void uniformSetFloat(const std::string &name, float val) const;
 	void uniformSet4Float(const std::string &name, float val1, float val2, float val3, float val4) const;
+	void uniformSetMatrix4fv(const std::string &name, int cntMatrix, bool isTranspose, const float* val) const;
 
 	unsigned int getId() const { return this->m_Id; }
 

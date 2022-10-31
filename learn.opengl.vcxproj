@@ -120,7 +120,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)src;$(SolutionDir)dependencies\glad\include;$(SolutionDir)dependencies\stb_image;$(SolutionDir)dependencies\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\glm;$(SolutionDir)src;$(SolutionDir)dependencies\glad\include;$(SolutionDir)dependencies\stb_image;$(SolutionDir)dependencies\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>lopch.h</PrecompiledHeaderFile>
     </ClCompile>
@@ -140,7 +140,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)src;$(SolutionDir)dependencies\glad\include;$(SolutionDir)dependencies\stb_image;$(SolutionDir)dependencies\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\glm;$(SolutionDir)src;$(SolutionDir)dependencies\glad\include;$(SolutionDir)dependencies\stb_image;$(SolutionDir)dependencies\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>lopch.h</PrecompiledHeaderFile>
     </ClCompile>

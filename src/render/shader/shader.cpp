@@ -84,6 +84,10 @@ void Shader::uniformSet4Float(const std::string& name, float val1, float val2, f
 	glUniform4f(glGetUniformLocation(this->m_Id, name.c_str()), val1, val2, val3, val4);
 }
 
+void Shader::uniformSetMatrix4fv(const std::string& name, int cntMatrix, bool isTranspose, const float* val) const {
+	glUniformMatrix4fv(glGetUniformLocation(this->m_Id, name.c_str()), cntMatrix, isTranspose, val);
+}
+
 unsigned int Shader::checkerCompileError(unsigned int shader, std::string type) const {
 	int success;
 	char info[1024];

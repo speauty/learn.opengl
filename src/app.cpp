@@ -5,6 +5,10 @@
 
 #include "stb_image.h"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <render/shader/shader.h>
 #include <render/texture/texture.h>
 
@@ -104,11 +108,13 @@ int main() {
 
 	Texture texture1(0, (PATH_TEXTURE + "container.jpg").c_str());
 	Texture texture2(1, (PATH_TEXTURE + "awesomeface.png").c_str());
-
+	
 	testShader.exec();
 	testShader.uniformSetInt("texture1", texture1.getTexId());
 	testShader.uniformSetInt("texture2", texture2.getTexId());
 
+	float step = 0.0;
+	bool flag = true;
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // 设置清除屏幕缓冲区使用的颜色
 		// 清除屏幕缓冲区, 接收一个参数指定要清空的缓冲区, 可选值:
@@ -119,6 +125,26 @@ int main() {
 
 		texture1.bind();
 		texture2.bind();
+
+		glm::mat4 trans = glm::mat4(1.0f);
+		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.1f, 0.1f, 1.0f));
+		trans = glm::scale(trans, glm::vec3(0.5, step, 0.5));
+		testShader.uniformSetMatrix4fv("transform", 1, GL_FALSE, glm::value_ptr(trans));
+
+		if (step >= 2) {
+			step = 2.0;
+			flag = false;
+		}
+		if (step <= 0) {
+			step = 0.0;
+			flag = true;
+		}
+
+		if (flag) {
+			step += 0.01;
+		} else {
+			step -= 0.01;
+		}
 
 		testShader.exec();
 
