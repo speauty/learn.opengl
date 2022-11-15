@@ -15,8 +15,8 @@
 void keyCallbackFn(GLFWwindow* window, int key, int scancode, int action, int mode);
 void framebufferSizeCallbackFn(GLFWwindow* window, int width, int height);
 
-const std::string PATH_SHADER = "E:\\MonkeyCode\\github.com\\speauty\\learn.opengl\\assets\\shader\\";
-const std::string PATH_TEXTURE = "E:\\MonkeyCode\\github.com\\speauty\\learn.opengl\\assets\\texture\\";
+const std::string PATH_SHADER = "E:\\speauty\\projects\\github.com\\speauty\\learn.opengl\\assets\\shader\\";
+const std::string PATH_TEXTURE = "E:\\speauty\\projects\\github.com\\speauty\\learn.opengl\\assets\\texture\\";
 
 int main() {
 
@@ -46,13 +46,14 @@ int main() {
 	// 设置线框绘制模式
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	unsigned char* glVersion;
-	glVersion = (unsigned char*)glGetString(GL_VERSION);
-	// 状态: 当前载入GL 3.3.0 NVIDIA 512.72
-	std::cout << "状态: 当前载入GL " << glVersion << std::endl;
+	std::cout << "状态: 当前载入GL厂商: " << (unsigned char*)glGetString(GL_VENDOR) << std::endl;   // 厂商
+	std::cout << "状态: 当前载入GL渲染: " << (unsigned char*)glGetString(GL_RENDERER) << std::endl; // 渲染器
+	std::cout << "状态: 当前载入GL版本: " << (unsigned char*)glGetString(GL_VERSION) << std::endl;  // 版本
+
 	int nrAttributes;
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
 	std::cout << "状态: 当前顶点支持属性最大数量: " << nrAttributes << std::endl;
+	std::cout << std::endl;
 
 	// 注册按键回调
 	glfwSetKeyCallback(window, keyCallbackFn);
@@ -141,9 +142,9 @@ int main() {
 		}
 
 		if (flag) {
-			step += 0.01;
+			step += 0.01f;
 		} else {
-			step -= 0.01;
+			step -= 0.01f;
 		}
 
 		testShader.exec();

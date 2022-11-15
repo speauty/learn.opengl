@@ -1,11 +1,11 @@
 #include "Shader.h"
 
 Shader::Shader() {
-	this->m_Id = glCreateProgram(); // 创建着色器程序
+	this->m_RenderId = glCreateProgram(); // 创建着色器程序
 }
 
 Shader::~Shader() {
-	glDeleteProgram(this->m_Id);
+	glDeleteProgram(this->m_RenderId);
 }
 
 unsigned int Shader::loadFromFile(const char* vertexPath, const char* fragmentPath) const {
@@ -51,10 +51,10 @@ unsigned int Shader::loadFromFile(const char* vertexPath, const char* fragmentPa
 		return 1;
 	}
 
-	glAttachShader(this->m_Id, vertex); // 附加着色器
-	glAttachShader(this->m_Id, fragment);
-	glLinkProgram(this->m_Id); // 链接
-	if (this->checkerCompileError(this->m_Id, "PROGRAM") > 0) {
+	glAttachShader(this->m_RenderId, vertex); // 附加着色器
+	glAttachShader(this->m_RenderId, fragment);
+	glLinkProgram(this->m_RenderId); // 链接
+	if (this->checkerCompileError(this->m_RenderId, "PROGRAM") > 0) {
 		return 1;
 	}
 
@@ -65,27 +65,27 @@ unsigned int Shader::loadFromFile(const char* vertexPath, const char* fragmentPa
 }
 
 void Shader::exec() const {
-	glUseProgram(this->m_Id);
+	glUseProgram(this->m_RenderId);
 }
 
 void Shader::uniformSetBool(const std::string& name, bool val) const {
-	glUniform1i(glGetUniformLocation(this->m_Id, name.c_str()), (int)val);
+	glUniform1i(glGetUniformLocation(this->m_RenderId, name.c_str()), (int)val);
 }
 
 void Shader::uniformSetInt(const std::string& name, int val) const {
-	glUniform1i(glGetUniformLocation(this->m_Id, name.c_str()), (int)val);
+	glUniform1i(glGetUniformLocation(this->m_RenderId, name.c_str()), (int)val);
 }
 
 void Shader::uniformSetFloat(const std::string& name, float val) const {
-	glUniform1f(glGetUniformLocation(this->m_Id, name.c_str()), val);
+	glUniform1f(glGetUniformLocation(this->m_RenderId, name.c_str()), val);
 }
 
 void Shader::uniformSet4Float(const std::string& name, float val1, float val2, float val3, float val4) const {
-	glUniform4f(glGetUniformLocation(this->m_Id, name.c_str()), val1, val2, val3, val4);
+	glUniform4f(glGetUniformLocation(this->m_RenderId, name.c_str()), val1, val2, val3, val4);
 }
 
 void Shader::uniformSetMatrix4fv(const std::string& name, int cntMatrix, bool isTranspose, const float* val) const {
-	glUniformMatrix4fv(glGetUniformLocation(this->m_Id, name.c_str()), cntMatrix, isTranspose, val);
+	glUniformMatrix4fv(glGetUniformLocation(this->m_RenderId, name.c_str()), cntMatrix, isTranspose, val);
 }
 
 unsigned int Shader::checkerCompileError(unsigned int shader, std::string type) const {

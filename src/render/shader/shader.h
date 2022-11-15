@@ -10,7 +10,7 @@
 class Shader
 {
 private:
-	unsigned int m_Id;
+	unsigned int m_RenderId;
 
 public:
 	Shader();
@@ -26,7 +26,7 @@ public:
 	void uniformSet4Float(const std::string &name, float val1, float val2, float val3, float val4) const;
 	void uniformSetMatrix4fv(const std::string &name, int cntMatrix, bool isTranspose, const float* val) const;
 
-	unsigned int getId() const { return this->m_Id; }
+	unsigned int getId() const { return this->m_RenderId; }
 
 private:
 	unsigned int checkerCompileError(unsigned int shader, std::string type) const;
