@@ -113,9 +113,17 @@ int main() {
 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
 
-	unsigned int indices[] = { // 索引
-		0, 1, 3,
-		1, 2, 3,
+	glm::vec3 cubePositions[] = { // 立方体的坐标
+	  glm::vec3(0.0f,  0.0f,  0.0f),
+	  glm::vec3(2.0f,  5.0f, -15.0f),
+	  glm::vec3(-1.5f, -2.2f, -2.5f),
+	  glm::vec3(-3.8f, -2.0f, -12.3f),
+	  glm::vec3(2.4f, -0.4f, -3.5f),
+	  glm::vec3(-1.7f,  3.0f, -7.5f),
+	  glm::vec3(1.3f, -2.0f, -2.5f),
+	  glm::vec3(1.5f,  2.0f, -2.5f),
+	  glm::vec3(1.5f,  0.2f, -1.5f),
+	  glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 
 	unsigned int vbo, vao, ebo; // 顶点缓冲对象 顶点数组缓冲对象(GPU解释顶点数据) 元素缓冲对象
@@ -170,23 +178,33 @@ int main() {
 		texture1.bind();
 		texture2.bind();
 
-		glm::mat4 model = glm::mat4(1.0f); // 模型矩阵(位移, 缩放, 旋转) 将局部空间变到世界空间
-		model = glm::rotate(model, (float)glfwGetTime() * glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		testShader.exec();
 
 		glm::mat4 view = glm::mat4(1.0f); // 观察矩阵
-		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -5.0f));
 
 		glm::mat4 projection = glm::mat4(1.0f); // 投影矩阵
-		projection = glm::perspective(glm::radians(45.0f), (float)WIN_WIDTH/(float)WIN_HEIGHT, 0.1f, 100.0f);
+		projection = glm::perspective(glm::radians(50.0f), (float)WIN_WIDTH/(float)WIN_HEIGHT, 0.5f, 100.0f);
 
-		testShader.uniformSetMatrix4fv("model", 1, GL_FALSE, glm::value_ptr(model));
 		testShader.uniformSetMatrix4fv("view", 1, GL_FALSE, glm::value_ptr(view));
 		testShader.uniformSetMatrix4fv("projection", 1, GL_FALSE, glm::value_ptr(projection));
 
-		testShader.exec();
-
 		glBindVertexArray(vao);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		for (unsigned int i = 0; i < 10; i++) {
+			// 计算每个立方体的世界坐标
+			// 模型矩阵(位移, 缩放, 旋转) 将局部空间变到世界空间
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, cubePositions[i]);
+			float angle = 20.0f * i;
+
+			if (angle == 0) { angle = 10.0f; }
+			
+			model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			testShader.uniformSetMatrix4fv("model", 1, GL_FALSE, glm::value_ptr(model));
+
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+
 
 		// 交换颜色缓冲区(储存着GLFW窗口每一个像素颜色值的大缓冲), 它在这一迭代中被用来绘制, 并且将会作为输出显示在屏幕上
 		// 双缓冲
