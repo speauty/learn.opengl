@@ -32,7 +32,7 @@ int main() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // 标记opengl为核心模式
 	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE); // 调整窗口大小
 
-	GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "LearnOpenGL", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "O-Cat", NULL, NULL);
 	if (NULL == window) {
 		std::cout << "ERROR::INIT::MSG(创建窗口失败)" << std::endl;
 		glfwTerminate();
@@ -160,15 +160,10 @@ int main() {
 	// @todo 这里这个待修复
 	testShader.loadFromFile((PATH_SHADER + "vs.vertex.hlsl").c_str(), (PATH_SHADER + "fs.fragment.hlsl").c_str());
 
-	Texture texture1(0, (PATH_TEXTURE + "container.jpg").c_str());
-	Texture texture2(1, (PATH_TEXTURE + "awesomeface.png").c_str());
-	
-	testShader.exec();
-	testShader.uniformSetInt("texture1", texture1.getTexId());
-	testShader.uniformSetInt("texture2", texture2.getTexId());
+	Texture texture1(0, (PATH_TEXTURE + "cat.jpg").c_str());
 
 	while (!glfwWindowShouldClose(window)) {
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // 设置清除屏幕缓冲区使用的颜色
+		glClearColor(0.2f, 0.7f, 0.1f, 0.0f); // 设置清除屏幕缓冲区使用的颜色
 		// 清除屏幕缓冲区, 接收一个参数指定要清空的缓冲区, 可选值:
 		// GL_COLOR_BUFFER_BIT - 颜色缓冲区(包含颜色索引或者RGBA颜色数据)
 		// GL_DEPTH_BUFFER_BIT - 深度缓冲区(包含每个像素的深度值)
@@ -176,9 +171,10 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		texture1.bind();
-		texture2.bind();
 
 		testShader.exec();
+
+		testShader.uniformSetInt("texture1", texture1.getTexId());
 
 		glm::mat4 view = glm::mat4(1.0f); // 观察矩阵
 		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -5.0f));
