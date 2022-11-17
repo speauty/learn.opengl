@@ -15,8 +15,11 @@
 void keyCallbackFn(GLFWwindow* window, int key, int scancode, int action, int mode);
 void framebufferSizeCallbackFn(GLFWwindow* window, int width, int height);
 
-const std::string PATH_SHADER = "E:\\speauty\\projects\\github.com\\speauty\\learn.opengl\\assets\\shader\\";
-const std::string PATH_TEXTURE = "E:\\speauty\\projects\\github.com\\speauty\\learn.opengl\\assets\\texture\\";
+const std::string PATH_SHADER = "E:\\MonkeyCode\\github.com\\speauty\\learn.opengl\\assets\\shader\\";
+const std::string PATH_TEXTURE = "E:\\MonkeyCode\\github.com\\speauty\\learn.opengl\\assets\\texture\\";
+
+const unsigned int WIN_WIDTH = 800;
+const unsigned int WIN_HEIGHT = 600;
 
 int main() {
 
@@ -29,7 +32,7 @@ int main() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // 标记opengl为核心模式
 	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE); // 调整窗口大小
 
-	GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "LearnOpenGL", NULL, NULL);
 	if (NULL == window) {
 		std::cout << "ERROR::INIT::MSG(创建窗口失败)" << std::endl;
 		glfwTerminate();
@@ -45,6 +48,11 @@ int main() {
 
 	// 设置线框绘制模式
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	// OpenGL存储它的所有深度信息于一个Z缓冲(Z-buffer)中，也被称为深度缓冲(Depth Buffer)
+	// 深度测试: 当片段想要输出它的颜色时，OpenGL会将它的深度值和z缓冲进行比较
+	//			如果当前的片段在其它片段之后，它将会被丢弃，否则将会覆盖
+	// 启用深度测试()
+	glEnable(GL_DEPTH_TEST);
 
 	std::cout << "状态: 当前载入GL厂商: " << (unsigned char*)glGetString(GL_VENDOR) << std::endl;   // 厂商
 	std::cout << "状态: 当前载入GL渲染: " << (unsigned char*)glGetString(GL_RENDERER) << std::endl; // 渲染器
@@ -62,10 +70,47 @@ int main() {
 
 	// 顶点(位置坐标 颜色 纹理坐标)
 	float vertices[] = {
-		0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 2.0f, 2.0f,
-		0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 2.0f, 0.0f,
-		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-		-0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,2.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
 
 	unsigned int indices[] = { // 索引
@@ -86,18 +131,18 @@ int main() {
 	// 3. GL_STREAM_DRAW 数据每次绘制时都会改变 流绘制
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	// 复制索引到元素缓冲区
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo); // 绑定元素缓冲对象
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo); // 绑定元素缓冲对象
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	// 设置顶点属性指针-坐标-位置0
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	// 设置顶点属性指针-颜色-位置1
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float) * 3));
-	glEnableVertexAttribArray(1);
+	/*glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float) * 3));
+	glEnableVertexAttribArray(1);*/
 	// 设置顶点属性指针-纹理-位置2
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float) * 6));
-	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(sizeof(float) * 3));
+	glEnableVertexAttribArray(1);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -114,43 +159,34 @@ int main() {
 	testShader.uniformSetInt("texture1", texture1.getTexId());
 	testShader.uniformSetInt("texture2", texture2.getTexId());
 
-	float step = 0.0;
-	bool flag = true;
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // 设置清除屏幕缓冲区使用的颜色
 		// 清除屏幕缓冲区, 接收一个参数指定要清空的缓冲区, 可选值:
 		// GL_COLOR_BUFFER_BIT - 颜色缓冲区(包含颜色索引或者RGBA颜色数据)
 		// GL_DEPTH_BUFFER_BIT - 深度缓冲区(包含每个像素的深度值)
 		// GL_STENCIL_BUFFER_BIT - 模板缓冲区
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		texture1.bind();
 		texture2.bind();
 
-		glm::mat4 trans = glm::mat4(1.0f);
-		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.1f, 0.1f, 1.0f));
-		trans = glm::scale(trans, glm::vec3(0.5, step, 0.5));
-		testShader.uniformSetMatrix4fv("transform", 1, GL_FALSE, glm::value_ptr(trans));
+		glm::mat4 model = glm::mat4(1.0f); // 模型矩阵(位移, 缩放, 旋转) 将局部空间变到世界空间
+		model = glm::rotate(model, (float)glfwGetTime() * glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
-		if (step >= 2) {
-			step = 2.0;
-			flag = false;
-		}
-		if (step <= 0) {
-			step = 0.0;
-			flag = true;
-		}
+		glm::mat4 view = glm::mat4(1.0f); // 观察矩阵
+		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 
-		if (flag) {
-			step += 0.01f;
-		} else {
-			step -= 0.01f;
-		}
+		glm::mat4 projection = glm::mat4(1.0f); // 投影矩阵
+		projection = glm::perspective(glm::radians(45.0f), (float)WIN_WIDTH/(float)WIN_HEIGHT, 0.1f, 100.0f);
+
+		testShader.uniformSetMatrix4fv("model", 1, GL_FALSE, glm::value_ptr(model));
+		testShader.uniformSetMatrix4fv("view", 1, GL_FALSE, glm::value_ptr(view));
+		testShader.uniformSetMatrix4fv("projection", 1, GL_FALSE, glm::value_ptr(projection));
 
 		testShader.exec();
 
 		glBindVertexArray(vao);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		// 交换颜色缓冲区(储存着GLFW窗口每一个像素颜色值的大缓冲), 它在这一迭代中被用来绘制, 并且将会作为输出显示在屏幕上
 		// 双缓冲
