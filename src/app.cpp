@@ -15,8 +15,8 @@
 void keyCallbackFn(GLFWwindow* window, int key, int scancode, int action, int mode);
 void framebufferSizeCallbackFn(GLFWwindow* window, int width, int height);
 
-const std::string PATH_SHADER = "E:\\MonkeyCode\\github.com\\speauty\\learn.opengl\\assets\\shader\\";
-const std::string PATH_TEXTURE = "E:\\MonkeyCode\\github.com\\speauty\\learn.opengl\\assets\\texture\\";
+const std::string PATH_SHADER = ".\\assets\\shader\\";
+const std::string PATH_TEXTURE = ".\\assets\\texture\\";
 
 const unsigned int WIN_WIDTH = 800;
 const unsigned int WIN_HEIGHT = 600;
