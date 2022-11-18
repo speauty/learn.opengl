@@ -21,6 +21,15 @@ const std::string PATH_TEXTURE = ".\\assets\\texture\\";
 const unsigned int WIN_WIDTH = 800;
 const unsigned int WIN_HEIGHT = 600;
 
+// 相机位置
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+// 时间
+float deltaTime = 0.0f;	// 当前帧和上一帧的时间差
+float lastFrame = 0.0f; // 上一帧的时间
+
 int main() {
 
 	glfwInit(); // 初始化glfw
@@ -63,8 +72,6 @@ int main() {
 	std::cout << "状态: 当前顶点支持属性最大数量: " << nrAttributes << std::endl;
 	std::cout << std::endl;
 
-	// 注册按键回调
-	glfwSetKeyCallback(window, keyCallbackFn);
 	// 注册视口回调, 注意: 需要配合标记GLFW_RESIZABLE为GL_TRUE, 窗口大小禁止调整时, 这个回调似乎也没啥用
 	glfwSetFramebufferSizeCallback(window, framebufferSizeCallbackFn);
 
@@ -162,7 +169,19 @@ int main() {
 
 	Texture texture1(0, (PATH_TEXTURE + "cat.jpg").c_str());
 
+	glm::mat4 projection = glm::mat4(1.0f); // 投影矩阵
+	projection = glm::perspective(glm::radians(50.0f), (float)WIN_WIDTH / (float)WIN_HEIGHT, 0.5f, 100.0f);
+
 	while (!glfwWindowShouldClose(window)) {
+
+		// 计算帧时间差
+		float currentFrame = static_cast<float>(glfwGetTime());
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
+		// 注册按键回调
+		glfwSetKeyCallback(window, keyCallbackFn);
+
 		glClearColor(0.2f, 0.7f, 0.1f, 0.0f); // 设置清除屏幕缓冲区使用的颜色
 		// 清除屏幕缓冲区, 接收一个参数指定要清空的缓冲区, 可选值:
 		// GL_COLOR_BUFFER_BIT - 颜色缓冲区(包含颜色索引或者RGBA颜色数据)
@@ -176,11 +195,8 @@ int main() {
 
 		testShader.uniformSetInt("texture1", texture1.getTexId());
 
-		glm::mat4 view = glm::mat4(1.0f); // 观察矩阵
-		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -5.0f));
-
-		glm::mat4 projection = glm::mat4(1.0f); // 投影矩阵
-		projection = glm::perspective(glm::radians(50.0f), (float)WIN_WIDTH/(float)WIN_HEIGHT, 0.5f, 100.0f);
+		// lookAt 摄像机位置(position)、目标位置(target)和世界空间中的上向量(up)
+		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp); // 观察矩阵
 
 		testShader.uniformSetMatrix4fv("view", 1, GL_FALSE, glm::value_ptr(view));
 		testShader.uniformSetMatrix4fv("projection", 1, GL_FALSE, glm::value_ptr(projection));
@@ -225,6 +241,13 @@ void keyCallbackFn(GLFWwindow* window, int key, int scancode, int action, int mo
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	}
+
+	// 摄像机移动按键控制(WSAD)
+	float cameraSpeed = static_cast<float>(10 * deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) cameraPos += cameraSpeed * cameraFront; // 摄像机向远平面移
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) cameraPos -= cameraSpeed * cameraFront; // 摄像机向近平面移
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed; // 摄像机右移
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed; // 摄像机左移
 }
 
 void framebufferSizeCallbackFn(GLFWwindow* window, int width, int height)
