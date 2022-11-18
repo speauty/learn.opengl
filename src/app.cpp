@@ -14,6 +14,8 @@
 
 void keyCallbackFn(GLFWwindow* window, int key, int scancode, int action, int mode);
 void framebufferSizeCallbackFn(GLFWwindow* window, int width, int height);
+void mouseCallbackFn(GLFWwindow* window, double xPos, double yPos);
+void scrollCallbackFn(GLFWwindow* window, double xOffset, double yOffset);
 
 const std::string PATH_SHADER = ".\\assets\\shader\\";
 const std::string PATH_TEXTURE = ".\\assets\\texture\\";
@@ -29,6 +31,12 @@ glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 // 时间
 float deltaTime = 0.0f;	// 当前帧和上一帧的时间差
 float lastFrame = 0.0f; // 上一帧的时间
+
+// 
+bool firstMouse = true;
+float lastXPos = 400, lastYPos = 300;
+float pitch = 0, yaw = -90.0f;
+float fov = 45.0f;
 
 int main() {
 
@@ -74,6 +82,13 @@ int main() {
 
 	// 注册视口回调, 注意: 需要配合标记GLFW_RESIZABLE为GL_TRUE, 窗口大小禁止调整时, 这个回调似乎也没啥用
 	glfwSetFramebufferSizeCallback(window, framebufferSizeCallbackFn);
+	// 注册鼠标回调
+	glfwSetCursorPosCallback(window, mouseCallbackFn);
+	// 注册滚轮回调
+	glfwSetScrollCallback(window, scrollCallbackFn);
+
+	// 隐藏并捕捉光标
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	// 顶点(位置坐标 颜色 纹理坐标)
 	float vertices[] = {
@@ -169,16 +184,13 @@ int main() {
 
 	Texture texture1(0, (PATH_TEXTURE + "cat.jpg").c_str());
 
-	glm::mat4 projection = glm::mat4(1.0f); // 投影矩阵
-	projection = glm::perspective(glm::radians(50.0f), (float)WIN_WIDTH / (float)WIN_HEIGHT, 0.5f, 100.0f);
-
+	
 	while (!glfwWindowShouldClose(window)) {
 
 		// 计算帧时间差
 		float currentFrame = static_cast<float>(glfwGetTime());
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-
 		// 注册按键回调
 		glfwSetKeyCallback(window, keyCallbackFn);
 
@@ -197,8 +209,10 @@ int main() {
 
 		// lookAt 摄像机位置(position)、目标位置(target)和世界空间中的上向量(up)
 		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp); // 观察矩阵
-
 		testShader.uniformSetMatrix4fv("view", 1, GL_FALSE, glm::value_ptr(view));
+
+		glm::mat4 projection = glm::mat4(1.0f); // 投影矩阵
+		projection = glm::perspective(glm::radians(fov), (float)WIN_WIDTH / (float)WIN_HEIGHT, 0.5f, 100.0f);
 		testShader.uniformSetMatrix4fv("projection", 1, GL_FALSE, glm::value_ptr(projection));
 
 		glBindVertexArray(vao);
@@ -242,12 +256,50 @@ void keyCallbackFn(GLFWwindow* window, int key, int scancode, int action, int mo
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	}
 
-	// 摄像机移动按键控制(WSAD)
+	// 摄像机移动按键控制(方向键)
 	float cameraSpeed = static_cast<float>(10 * deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) cameraPos += cameraSpeed * cameraFront; // 摄像机向远平面移
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) cameraPos -= cameraSpeed * cameraFront; // 摄像机向近平面移
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed; // 摄像机右移
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed; // 摄像机左移
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) cameraPos += cameraSpeed * cameraFront; // 摄像机向远平面移
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) cameraPos -= cameraSpeed * cameraFront; // 摄像机向近平面移
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed; // 摄像机右移
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed; // 摄像机左移
+}
+
+void mouseCallbackFn(GLFWwindow* window, double xPos, double yPos)
+{
+	if (firstMouse)
+	{
+		lastXPos = xPos;
+		lastYPos = yPos;
+		firstMouse = false;
+	}
+
+	float xOffset = yPos - lastXPos;
+	float yOffset = lastYPos - yPos;
+	lastXPos = yPos;
+	lastYPos = yPos;
+
+	float sensitivity = 0.05;
+	xOffset *= sensitivity;
+	yOffset *= sensitivity;
+
+	yaw += xOffset;
+	pitch += yOffset;
+
+	if (pitch > 89.0f) pitch = 89.0f;
+	if (pitch < -89.0f) pitch = -89.0f;
+
+	glm::vec3 front;
+	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	front.y = sin(glm::radians(pitch));
+	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	cameraFront = glm::normalize(front);
+}
+
+void scrollCallbackFn(GLFWwindow* window, double xOffset, double yOffset)
+{
+	fov -= (float)yOffset;
+	if (fov < 1.0f) fov = 1.0f;
+	if (fov > 45.0f) fov = 45.0f;
 }
 
 void framebufferSizeCallbackFn(GLFWwindow* window, int width, int height)
